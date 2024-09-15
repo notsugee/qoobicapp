@@ -31,7 +31,8 @@ export default function HomeScreen() {
     try {
       const endpoint = selectedOption === "book" ? "/recommend" : "/phrase";
       const response = await fetch(
-        `https://7410-45-251-33-237.ngrok-free.app${endpoint}`,
+        `https://888d-45-251-33-148.ngrok-free.app${endpoint}`,
+
         {
           method: "POST",
           headers: {

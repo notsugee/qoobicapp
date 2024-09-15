@@ -4,4 +4,17 @@
 
 ## Installation
 
-Open this link on your Android devices to install the app: [Download APK](https://expo.dev/accounts/notsugee/projects/QoobicMob/builds/e73f15e9-87e9-460b-8aa6-13cf9a91206f)
+Open this link on your Android devices to install the app: [Download APK](https://expo.dev/accounts/notsugee/projects/QoobicMob/builds/aeb481f9-4dad-48e0-acb2-324307f3a87e)
+
+### Or
+
+- Clone the repository
+- install the node modules
+- run npx eas build:configure
+- run eas build -p android --profile preview
+- Scan the QR code shown or click on the link to proceed with the installation.
+
+### If you want to develop:
+
+- eas build --platform android --profile development
+- npx expo start --dev-client
