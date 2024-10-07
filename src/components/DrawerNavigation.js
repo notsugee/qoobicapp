@@ -11,30 +11,27 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { auth } from "../../firebase"; // Import Firebase auth for login/signup and sign out functionality
+import { auth } from "../../firebase";
 
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = width * 0.7;
 
-// Drawer content with conditional Login/Signup or Sign Out button and user email display
 const DrawerContent = ({ navigation, closeDrawer }) => {
   const [user, setUser] = useState(null);
 
-  // Track the user's auth state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user); // Set the user state when auth state changes
+      setUser(user);
     });
-    return unsubscribe; // Cleanup listener on unmount
+    return unsubscribe;
   }, []);
 
-  // Handle sign out
   const handleSignOut = () => {
     auth
       .signOut()
       .then(() => {
         console.log("User signed out");
-        closeDrawer(); // Close the drawer after signing out
+        closeDrawer();
       })
       .catch((error) => {
         console.error("Error signing out: ", error);
@@ -42,15 +39,13 @@ const DrawerContent = ({ navigation, closeDrawer }) => {
   };
 
   return (
-    <View className="flex-1 p-5">
-      {/* Drawer close button */}
-      <View className="items-end mb-5">
+    <View className="flex-1 p-5 shadow-sm shadow-black">
+      <View className="items-end mb-5 mt-10">
         <TouchableOpacity onPress={closeDrawer}>
-          <XMarkIcon color="gray" size={hp(3)} />
+          <XMarkIcon color="gray" size={hp(4)} />
         </TouchableOpacity>
       </View>
 
-      {/* Display logged-in user's email if authenticated */}
       {user && (
         <View className="mb-4">
           <Text className="text-gray-800 text-lg font-semibold">
@@ -59,7 +54,6 @@ const DrawerContent = ({ navigation, closeDrawer }) => {
         </View>
       )}
 
-      {/* Navigation options */}
       <TouchableOpacity
         className="py-4 border-b border-gray-200"
         onPress={() => {
@@ -80,7 +74,6 @@ const DrawerContent = ({ navigation, closeDrawer }) => {
         <Text className="text-gray-800 text-lg">Library</Text>
       </TouchableOpacity>
 
-      {/* Conditionally render Login/Signup or Sign Out button */}
       {user ? (
         <TouchableOpacity
           className="py-4 border-b border-gray-200"
@@ -103,13 +96,11 @@ const DrawerContent = ({ navigation, closeDrawer }) => {
   );
 };
 
-// HOC to wrap the component with a sliding drawer
 const withDrawer = (WrappedComponent) => {
   return function WithDrawerComponent({ navigation, ...props }) {
     const translateX = useRef(new Animated.Value(DRAWER_WIDTH)).current;
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    // Open the drawer with animation
     const openDrawer = () => {
       setIsDrawerOpen(true);
       Animated.timing(translateX, {
@@ -119,7 +110,6 @@ const withDrawer = (WrappedComponent) => {
       }).start();
     };
 
-    // Close the drawer with animation
     const closeDrawer = () => {
       Animated.timing(translateX, {
         toValue: DRAWER_WIDTH,
@@ -130,14 +120,12 @@ const withDrawer = (WrappedComponent) => {
 
     return (
       <View className="flex-1">
-        {/* Pass openDrawer to the wrapped component */}
         <WrappedComponent
           {...props}
           navigation={navigation}
           openDrawer={openDrawer}
         />
 
-        {/* Overlay to close the drawer */}
         {isDrawerOpen && (
           <TouchableOpacity
             className="absolute inset-0 bg-black/50"
@@ -146,7 +134,6 @@ const withDrawer = (WrappedComponent) => {
           />
         )}
 
-        {/* Drawer sliding from the right */}
         <Animated.View
           className="absolute right-0 top-0 bottom-0 bg-white"
           style={{
@@ -154,7 +141,6 @@ const withDrawer = (WrappedComponent) => {
             transform: [{ translateX }],
           }}
         >
-          {/* Render drawer content */}
           <DrawerContent navigation={navigation} closeDrawer={closeDrawer} />
         </Animated.View>
       </View>

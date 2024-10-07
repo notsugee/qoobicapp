@@ -1,26 +1,72 @@
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
-import React from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { ChevronLeftIcon, PlusIcon } from "react-native-heroicons/outline";
+import {
+  ChevronLeftIcon,
+  PlusIcon,
+  MinusIcon,
+} from "react-native-heroicons/outline";
 import { useNavigation } from "@react-navigation/native";
-import { FontAwesome } from "@expo/vector-icons"; // For star icons
+import { FontAwesome } from "@expo/vector-icons";
 import { CachedImage } from "../helpers/image";
+import { auth, db } from "../../firebase";
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 export default function BookDetailScreen(props) {
   const item = props.route.params;
   const navigation = useNavigation();
+  const [adding, setAdding] = useState(false);
+  const [isInLibrary, setIsInLibrary] = useState(false);
 
-  // Function to convert http to https
+  useEffect(() => {
+    const checkBookInLibrary = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const libraryCollectionRef = collection(
+            db,
+            "qoobiclibrary",
+            user.uid,
+            "books"
+          );
+          const q = query(
+            libraryCollectionRef,
+            where("title", "==", item.title),
+            where("authors", "==", item.authors || "Unknown Author")
+          );
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            setIsInLibrary(true);
+          }
+        } catch (error) {
+          console.error("Error checking library: ", error);
+        }
+      }
+    };
+
+    checkBookInLibrary();
+  }, [item.title, item.authors]);
+
   const secureThumbnail = (uri) => {
     return uri?.startsWith("http://")
       ? uri.replace("http://", "https://")
@@ -62,6 +108,104 @@ export default function BookDetailScreen(props) {
 
   const thumbnailUri = secureThumbnail(item.thumbnail);
 
+  const addToLibrary = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert(
+        "Error",
+        "You need to be logged in to add a book to your library."
+      );
+      return;
+    }
+
+    setAdding(true);
+
+    try {
+      const libraryCollectionRef = collection(
+        db,
+        "qoobiclibrary",
+        user.uid,
+        "books"
+      );
+
+      const q = query(
+        libraryCollectionRef,
+        where("title", "==", item.title),
+        where("authors", "==", item.authors || "Unknown Author")
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        Alert.alert("Info", "Book is already in your library");
+        return;
+      }
+
+      await addDoc(libraryCollectionRef, {
+        title: item.title,
+        authors: item.authors || "Unknown Author",
+        categories: categories,
+        thumbnail: thumbnailUri,
+        average_rating: item.average_rating || 0,
+        description: item.description || "No description available",
+        addedAt: new Date(),
+      });
+
+      Alert.alert("Success", `${item.title} added to your library!`);
+      setIsInLibrary(true);
+    } catch (error) {
+      console.error("Error adding book to library: ", error);
+      Alert.alert("Error", "Failed to add the book to your library.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const removeFromLibrary = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert(
+        "Error",
+        "You need to be logged in to remove a book from your library."
+      );
+      return;
+    }
+
+    setAdding(true);
+
+    try {
+      const libraryCollectionRef = collection(
+        db,
+        "qoobiclibrary",
+        user.uid,
+        "books"
+      );
+      const q = query(
+        libraryCollectionRef,
+        where("title", "==", item.title),
+        where("authors", "==", item.authors || "Unknown Author")
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        Alert.alert("Info", "Book not found in your library");
+        return;
+      }
+
+      const bookDocId = querySnapshot.docs[0].id;
+      await deleteDoc(doc(libraryCollectionRef, bookDocId));
+
+      Alert.alert("Success", `${item.title} removed from your library!`);
+      setIsInLibrary(false);
+    } catch (error) {
+      console.error("Error removing book from library: ", error);
+      Alert.alert("Error", "Failed to remove the book from your library.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
   return (
     <ScrollView
       className="bg-white flex-1"
@@ -72,7 +216,7 @@ export default function BookDetailScreen(props) {
       {/* Book Cover */}
       <View className="flex-row justify-center">
         <CachedImage
-          source={{ uri: thumbnailUri }} // Ensure correct uri is passed
+          source={{ uri: thumbnailUri }}
           style={{
             width: wp(98),
             height: hp(50),
@@ -84,7 +228,7 @@ export default function BookDetailScreen(props) {
         />
       </View>
 
-      {/* Back button */}
+      {/* Back and Add/Remove buttons */}
       <View className="w-full absolute flex-row justify-between items-center pt-14">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -92,18 +236,32 @@ export default function BookDetailScreen(props) {
         >
           <ChevronLeftIcon size={hp(3.5)} strokeWidth={4.5} color="#fca5a5" />
         </TouchableOpacity>
-        <TouchableOpacity className="p-2 rounded-full mr-5 bg-white">
-          <PlusIcon size={hp(3.5)} strokeWidth={4.5} color="gray" />
+        <TouchableOpacity
+          onPress={isInLibrary ? removeFromLibrary : addToLibrary}
+          disabled={adding}
+          className="p-2 rounded-full mr-5 bg-white"
+        >
+          {isInLibrary ? (
+            <MinusIcon
+              size={hp(3.5)}
+              strokeWidth={4.5}
+              color={adding ? "gray" : "#fca5a5"}
+            />
+          ) : (
+            <PlusIcon
+              size={hp(3.5)}
+              strokeWidth={4.5}
+              color={adding ? "gray" : "#fca5a5"}
+            />
+          )}
         </TouchableOpacity>
       </View>
 
-      {/* Book Details */}
       <View className="px-4 flex-1 space-y-4 pt-8">
         <View className="space-y-2">
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.authors}>{item.authors || "Unknown Author"}</Text>
 
-          {/* Categories (Genres) */}
           <View style={styles.genresContainer}>
             {categories.length > 0 ? (
               categories.map((category, index) => (

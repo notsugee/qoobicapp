@@ -11,7 +11,7 @@ import { CachedImage } from "../helpers/image";
 
 export default function Books({ books }) {
   if (!books || books.length === 0) {
-    return null; // Return null if there are no books to display
+    return null;
   }
 
   const navigation = useNavigation();
@@ -43,16 +43,15 @@ export default function Books({ books }) {
 const BookCard = ({ item, index, navigation }) => {
   const isEven = index % 2 === 0;
 
-  // Replace http with https in thumbnail URL if needed
   const secureThumbnail = item.thumbnail.startsWith("http://")
     ? item.thumbnail.replace("http://", "https://")
     : item.thumbnail;
 
   return (
     <Animated.View
-      key={item.id} // Unique key for each book card
-      entering={FadeInDown.delay(index * 100).duration(500)} // Fade in down with delay
-      style={{ marginBottom: 10 }} // Ensure spacing between cards
+      key={item.id}
+      entering={FadeInDown.delay(index * 100).duration(500)}
+      style={{ marginBottom: 10 }}
     >
       <Pressable
         style={{

@@ -5,12 +5,11 @@ import Animated from "react-native-reanimated";
 export const CachedImage = (props) => {
   const [cachedSource, setCachedSource] = useState(null);
 
-  // Check if props.source exists and has a uri property
   const uri = props.source?.uri;
 
   useEffect(() => {
     if (!uri) {
-      return; // If uri is not available, don't proceed further
+      return;
     }
 
     const getCachedImage = async () => {
@@ -36,9 +35,8 @@ export const CachedImage = (props) => {
     };
 
     getCachedImage();
-  }, [uri]); // Add uri as a dependency to the effect
+  }, [uri]);
 
-  // Return null or a placeholder if the source or cachedSource is not available
   if (!cachedSource) {
     return null;
   }

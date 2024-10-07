@@ -22,7 +22,6 @@ export default function Categories({ activeCategory, setActiveCategory }) {
         className="space-x-4"
         contentContainerStyle={{ paddingHorizontal: 15 }}
       >
-        {/* Book Category */}
         <Animated.View className="flex items-center">
           <TouchableOpacity
             className={`flex items-center justify-center space-y-2 ${
@@ -51,7 +50,6 @@ export default function Categories({ activeCategory, setActiveCategory }) {
           </Text>
         </Animated.View>
 
-        {/* Phrase Category */}
         <View className="flex items-center">
           <TouchableOpacity
             className={`flex items-center justify-center space-y-2 ${

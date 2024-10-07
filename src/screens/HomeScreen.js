@@ -76,9 +76,6 @@ function HomeScreen({ navigation, openDrawer }) {
         </View>
 
         <View className="mx-4 space-y-2 mb-2">
-          <Text style={{ fontSize: hp(1.7) }} className="text-neutral-600">
-            Hello, Sujith!
-          </Text>
           <View>
             <Text
               style={{ fontSize: hp(3.8) }}
