@@ -7,41 +7,61 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
 import { auth } from "../../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const navigation = useNavigation();
 
+  // Monitor authentication state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
+        // User is signed in, navigate to the Home screen
         navigation.replace("Home");
       }
     });
 
+    // Unsubscribe from the listener on unmount
     return unsubscribe;
   }, []);
 
+  // Handle sign-up functionality
   const handleSignUp = () => {
-    auth
-      .createUserWithEmailAndPassword(email, password)
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.log("Registered with:", user.email);
+        // Navigate to Home or display success message
       })
       .catch((error) => alert(error.message));
   };
 
+  // Handle login functionality
   const handleLogin = () => {
-    auth
-      .signInWithEmailAndPassword(email, password)
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.log("Logged in with:", user.email);
+        // Redirect to home after successful login
+        navigation.replace("Home");
       })
       .catch((error) => alert(error.message));
   };
