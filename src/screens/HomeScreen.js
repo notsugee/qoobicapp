@@ -12,18 +12,19 @@ import { StatusBar } from "expo-status-bar";
 import { Bars3Icon, MagnifyingGlassIcon } from "react-native-heroicons/outline";
 import Categories from "../components/categories";
 import Books from "../components/books";
+import withDrawer from "../components/DrawerNavigation";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 
-export default function HomeScreen() {
+function HomeScreen({ navigation, openDrawer }) {
   const [activeCategory, setActiveCategory] = useState("Book");
   const [bookName, setBookName] = useState("");
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedOption, setSelectedOption] = useState("book"); // Initialize with default option
+  const [selectedOption, setSelectedOption] = useState("book");
 
   const searchBook = async () => {
     setLoading(true);
@@ -32,7 +33,6 @@ export default function HomeScreen() {
       const endpoint = selectedOption === "book" ? "/recommend" : "/phrase";
       const response = await fetch(
         `https://firm-next-bluegill.ngrok-free.app${endpoint}`,
-
         {
           method: "POST",
           headers: {
@@ -70,7 +70,9 @@ export default function HomeScreen() {
             style={{ height: hp(5), width: hp(5.5) }}
             alt="PS"
           />
-          <Bars3Icon color="gray" size={hp(4)} />
+          <TouchableOpacity onPress={openDrawer}>
+            <Bars3Icon color="gray" size={hp(4)} />
+          </TouchableOpacity>
         </View>
 
         <View className="mx-4 space-y-2 mb-2">
@@ -125,7 +127,7 @@ export default function HomeScreen() {
             activeCategory={activeCategory}
             setActiveCategory={(category) => {
               setActiveCategory(category);
-              setSelectedOption(category.toLowerCase()); // Update selectedOption based on the category
+              setSelectedOption(category.toLowerCase());
             }}
           />
         </View>
@@ -137,3 +139,5 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+export default withDrawer(HomeScreen);
