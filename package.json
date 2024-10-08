@@ -11,7 +11,6 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "1.23.1",
-    "@react-native-firebase/auth": "^21.0.0",
     "@react-native-picker/picker": "2.7.5",
     "@react-native-seoul/masonry-list": "^1.4.2",
     "@react-navigation/native": "^6.1.18",
@@ -40,5 +39,6 @@
     "@babel/core": "^7.20.0",
     "tailwindcss": "^3.3.2"
   },
-  "private": true
+  "private": true,
+  "packageManager": "yarn@4.5.0+sha512.837566d24eec14ec0f5f1411adb544e892b3454255e61fdef8fd05f3429480102806bac7446bc9daff3896b01ae4b62d00096c7e989f1596f2af10b927532f39"
 }
