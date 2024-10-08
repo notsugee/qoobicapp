@@ -4,7 +4,7 @@
 
 ## Installation
 
-Open this link on your Android devices to install the app: [Download APK](https://expo.dev/accounts/notsugee/projects/QoobicMob/builds/aeb481f9-4dad-48e0-acb2-324307f3a87e)
+Open this link on your Android devices to install the app: [Download APK](https://expo.dev/accounts/notsugee/projects/qoobicmobapp/builds/8f91e1b3-5a83-404a-9926-bdbcbb77700b)
 
 ### Or
 
